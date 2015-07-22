@@ -1,0 +1,28 @@
+- Create VPC
+  - VPC
+  - Subnet
+    - Private
+    - Public
+  - Internet Gateway
+  - Routing Tables
+    - For public
+    - For private
+  - Security Groups
+    - ssh
+- Create EC2
+  - Web in public subnet
+- Create RDS
+  - DB in private subnet
+- Create Route53 zone
+
+- Update VPC
+  - Dynamic Inventory
+
+- Deploy app
+  - Create AMI
+    - Cloud Formation?
+    - Packer?
+    - ansible?
+  - Create EC2 from the AMI
+  - Service Control?
+  - Roll back?
