@@ -1,0 +1,22 @@
+---
+- name: Create VPC
+  ec2_vpc:
+    cidr_block: 172.23.0.0/16
+    region: "{{ region }}"
+    wait: true
+    resource_tags:
+      Name: "ansible-test"
+      Environment: "Dev"
+    subnets:
+      - cidr: 172.23.1.0/24
+        resource_tags:
+          Name: "ansible-test"
+          Environment: "Dev"
+          Tier: "Web"
+      - cidr: 172.23.2.0/24
+        resource_tags:
+          Name: "ansible-test"
+          Environment: "Dev"
+          Tier: "DB"
+    internet_gateway: true
+  register: vpc
