@@ -5,6 +5,8 @@
     region: "{{ region }}"
     disable_rollback: true
     template: "roles/cloudformation/files/vpc.json"
+    template_parameters:
+      SSHFrom: "{{ ssh_from }}"
     tags:
       Stack: "ansible-cloudformation-vpc"
   register: cfn

@@ -1,12 +1,23 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+      "SSHFrom" : {
+      "Description" : "Lockdown SSH access to the bastion host (default can be accessed from anywhere)",
+      "Type" : "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default" : "0.0.0.0/0",
+      "AllowedPattern" : "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription" : "must be a valid CIDR range of the form x.x.x.x/x."
+    }
+  },
   "Resources": {
-    "CFNVPN": {
+    "VPC": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
         "CidrBlock": "172.30.0.0/16",
         "Tags": [
-          { "Key": "Name", "Value": "cfn-sample" },
+          { "Key": "Name", "Value": "cfn-sample-vpc" },
           { "Key": "BuiltBy", "Value": "CloudFormation" }
         ]
       }
@@ -15,10 +26,9 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "172.30.0.0/24",
-        "VpcId": { "Ref": "CFNVPN" },
+        "VpcId": { "Ref": "VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "cfn-sample" },
-          { "Key": "BuiltBy", "Value": "CloudFormation" }
+          { "Key": "Name", "Value": "cfn-sample-public-subnet" }
         ]
       }
     },
@@ -26,23 +36,83 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "172.30.1.0/24",
-        "VpcId": { "Ref": "CFNVPN" },
+        "VpcId": { "Ref": "VPC" },
         "Tags": [
-          { "Key": "Name", "Value": "cfn-sample" },
-          { "Key": "BuiltBy", "Value": "CloudFormation" }
+          { "Key": "Name", "Value": "cfn-sample-private-subnet" }
+        ]
+      }
+    },
+    "InternetGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          { "Key": "Name", "Value": "cfn-sample-igw" }
+        ]
+      }
+    },
+    "AttachIGW": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "InternetGatewayId": { "Ref": "InternetGW" },
+        "VpcId": { "Ref": "VPC" }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "VPC" },
+        "Tags": [
+          { "Key": "Name", "Value": "cfn-sample-public-rt" }
+        ]
+      }
+    },
+    "InternetRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "AttachIGW",
+      "Properties": {
+        "RouteTableId": { "Ref": "PublicRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "InternetGW" }
+      }
+    },
+    "PublicSubnetRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": { "Ref": "PublicRouteTable" },
+        "SubnetId": { "Ref": "PublicSubnet" }
+      }
+    },
+    "SSHSecuriryGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow ssh from specified location",
+        "VpcId": { "Ref": "VPC" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": { "Ref": "SSHFrom" }
+          }
+        ],
+        "Tags": [
+          { "Key": "Name", "Value": "cfn-sample-sg-ssh"}
         ]
       }
     }
   },
   "Outputs": {
     "VPCID": {
-      "Value": { "Ref": "CFNVPN" }
+      "Value": { "Ref": "VPC" }
     },
     "PublicSubnetID": {
       "Value": { "Ref": "PublicSubnet" }
     },
     "PrivateSubnetID": {
       "Value": { "Ref": "PrivateSubnet" }
+    },
+    "InternetGateway": {
+      "Value": { "Ref": "InternetGW" }
     }
   }
 }
