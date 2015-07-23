@@ -1,0 +1,48 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "CFNVPN": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "172.30.0.0/16",
+        "Tags": [
+          { "Key": "Name", "Value": "cfn-sample" },
+          { "Key": "BuiltBy", "Value": "CloudFormation" }
+        ]
+      }
+    },
+    "PublicSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.30.0.0/24",
+        "VpcId": { "Ref": "CFNVPN" },
+        "Tags": [
+          { "Key": "Name", "Value": "cfn-sample" },
+          { "Key": "BuiltBy", "Value": "CloudFormation" }
+        ]
+      }
+    },
+    "PrivateSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "172.30.1.0/24",
+        "VpcId": { "Ref": "CFNVPN" },
+        "Tags": [
+          { "Key": "Name", "Value": "cfn-sample" },
+          { "Key": "BuiltBy", "Value": "CloudFormation" }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "VPCID": {
+      "Value": { "Ref": "CFNVPN" }
+    },
+    "PublicSubnetID": {
+      "Value": { "Ref": "PublicSubnet" }
+    },
+    "PrivateSubnetID": {
+      "Value": { "Ref": "PrivateSubnet" }
+    }
+  }
+}

@@ -20,3 +20,6 @@
           Tier: "DB"
     internet_gateway: true
   register: vpc
+
+- name: Print VPC Object
+  debug: var=vpc

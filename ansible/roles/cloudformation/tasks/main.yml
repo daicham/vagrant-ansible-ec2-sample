@@ -1,0 +1,13 @@
+---
+- name: Create a VPC with CloudFormation
+  cloudformation:
+    stack_name: "ansible-cloudformation"
+    region: "{{ region }}"
+    disable_rollback: true
+    template: "roles/cloudformation/files/vpc.json"
+    tags:
+      Stack: "ansible-cloudformation-vpc"
+  register: cfn
+
+- name: Print CloudFormation object
+  debug: var=cfn

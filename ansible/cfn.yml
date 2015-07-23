@@ -1,0 +1,9 @@
+---
+
+# Create VPC
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - cloudformation
+
